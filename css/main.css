@@ -1,0 +1,16 @@
+/* 
+    Document   : main
+    Created on : Mar 22, 2014, 11:42:14 AM
+    Author     : Sam
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+root { 
+    display: block;
+}
+
+.txtError{
+    border: solid 2px #FF0000;  
+}
+
