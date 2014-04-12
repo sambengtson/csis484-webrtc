@@ -19,8 +19,6 @@
                 $('#videoStatus').show();
                 $('#roomStatus').html('Connecting to room: ' + room + '<span style="padding-left: 10px;"><i class="fa fa-refresh fa-spin"></i></span>');
                 beginVideo(room, function(status, spin) {
-
-                    console.log('status update');
                     if (spin)
                         $('#roomStatus').html(status + '<span style="padding-left: 10px;"><i class="fa fa-refresh fa-spin"></i></span>');
                     else

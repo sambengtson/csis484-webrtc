@@ -45,6 +45,7 @@ function beginVideo(roomName, callback) {
     });
 
     socket.on('joined', function(room) {
+        callback('Room: ' + room);
         console.log('This peer has joined room ' + room);
         isChannelReady = true;
     });
@@ -122,7 +123,7 @@ function beginVideo(roomName, callback) {
     }
 
     function maybeStart() {
-        if (!isStarted && typeof localStream != 'undefined' && isChannelReady) {
+        if (typeof localStream != 'undefined' && isChannelReady) {
             createPeerConnection();
             pc.addStream(localStream);
             isStarted = true;
