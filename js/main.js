@@ -6,7 +6,7 @@ function beginVideo(roomName, callback) {
     var isStarted = false;
     var localStream;
     var pc;
-    var remoteStream;
+    var remoteStreams = new Array();
     var turnReady;
 
     var pc_config = {'iceServers': [{"url": "stun:stun.l.google.com:19302"},
@@ -39,13 +39,13 @@ function beginVideo(roomName, callback) {
     });
 
     socket.on('join', function(room) {
-        
+
         callback('Joining room..', true);
         isChannelReady = true;
     });
 
     socket.on('joined', function(room) {
-        console.log('This peer has joined room ' + room);       
+        console.log('This peer has joined room ' + room);
         isChannelReady = true;
     });
 
@@ -56,7 +56,6 @@ function beginVideo(roomName, callback) {
 ////////////////////////////////////////////////
 
     function sendMessage(message) {
-        console.log('Client sending message: ', message);
         // if (typeof message === 'object') {
         //   message = JSON.stringify(message);
         // }
@@ -64,7 +63,6 @@ function beginVideo(roomName, callback) {
     }
 
     socket.on('message', function(message) {
-        console.log('Client received message:', message);
         if (message === 'got user media') {
             maybeStart();
         } else if (message.type === 'offer') {
@@ -89,7 +87,7 @@ function beginVideo(roomName, callback) {
 ////////////////////////////////////////////////////
 
     var localVideo = document.querySelector('#localVideo');
-    var remoteVideo = document.querySelector('#remoteVideo');
+    //var remoteVideo = document.querySelector('#remoteVideo');
 
     function handleUserMedia(stream) {
         console.log('Adding local stream.');
@@ -99,7 +97,7 @@ function beginVideo(roomName, callback) {
         if (isInitiator) {
             maybeStart();
         }
-        
+
         console.log('triggering callback');
         callback('Obtained local stream', false);
     }
@@ -163,22 +161,13 @@ function beginVideo(roomName, callback) {
     }
 
     function handleIceCandidate(event) {
-        console.log('handleIceCandidate event: ', event);
         if (event.candidate) {
             sendMessage({
                 type: 'candidate',
                 label: event.candidate.sdpMLineIndex,
                 id: event.candidate.sdpMid,
                 candidate: event.candidate.candidate});
-        } else {
-            console.log('End of candidates.');
         }
-    }
-
-    function handleRemoteStreamAdded(event) {
-        console.log('Remote stream added.');
-        remoteVideo.src = window.URL.createObjectURL(event.stream);
-        remoteStream = event.stream;
     }
 
     function handleCreateOfferError(event) {
@@ -218,8 +207,14 @@ function beginVideo(roomName, callback) {
 
     function handleRemoteStreamAdded(event) {
         console.log('Remote stream added.');
+//        remoteVideo.src = window.URL.createObjectURL(event.stream);
+        console.log('Dynamically creating video');
+        var remoteVideo = document.createElement("video");
+        remoteVideo.autoplay = true;
         remoteVideo.src = window.URL.createObjectURL(event.stream);
-        remoteStream = event.stream;
+        remoteStreams.push(event.stream);
+        $('#videos').append(remoteVideo);
+        console.log('Creation complete!');
     }
 
     function handleRemoteStreamRemoved(event) {
