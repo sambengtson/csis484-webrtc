@@ -22,12 +22,28 @@ io.sockets.on('connection', function(socket) {
 
         if (numClients === 0) {
             socket.join(room);
-            socket.emit('created', room);        
-        } else { 
-            io.sockets.in(room).emit('join', room);
+            var clientInfo = new Object();
+            clientInfo.RoomName = room;
+            clientInfo.ClientId = Math.floor((Math.random() * 10000) + 1);
+            socket.set('ClientInfo', clientInfo, function() {
+                socket.emit('created', room);
+            });
+        } else {            
             socket.join(room);
-            socket.emit('joined', room);
+            var clientInfo = new Object();
+            clientInfo.RoomName = room;
+            clientInfo.ClientId = Math.floor((Math.random() * 10000) + 1);
+            socket.set('ClientInfo', clientInfo, function() {
+                socket.emit('joined', clientInfo);
+                io.sockets.in(room).emit('join', clientInfo);
+            });
         }
+    });
+
+    socket.on('disconnect', function() {
+        socket.get('ClientInfo', function(err, info) {
+            io.sockets.in(info.RoomName).emit('ClientDisconnect', info.ClientId);
+        });
     });
 });
 

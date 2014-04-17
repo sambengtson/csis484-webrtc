@@ -1,11 +1,9 @@
 
-<div id='container'>        
+
     <div id='videos'>        
-        <video id='localVideo' autoplay muted></video>
+        <video id='localVideo' style="overflow-x: hidden; overflow-y: hidden; margin-bottom: 10px;" autoplay muted></video>
 <!--        <video id='remoteVideo' autoplay></video>-->
     </div>
-
-</div>
 
 <script type="text/javascript">
 

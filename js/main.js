@@ -8,6 +8,9 @@ function beginVideo(roomName, callback) {
     var pc;
     var remoteStreams = new Array();
     var turnReady;
+    var lastStreamId = 0;
+    var currentWidth = '100%';
+    var currentHeight = 320;
 
     var pc_config = {'iceServers': [{"url": "stun:stun.l.google.com:19302"},
             {"url": "turn:sam@54.84.120.24", "sam": "sam"}]};
@@ -21,7 +24,7 @@ function beginVideo(roomName, callback) {
 
 /////////////////////////////////////////////
 
-    var socket = io.connect('http://54.84.120.24:2013');
+    var socket = io.connect('http://192.168.1.5:2013');
 
     if (roomName !== '') {
         console.log('Create or join room', roomName);
@@ -34,24 +37,22 @@ function beginVideo(roomName, callback) {
         callback('Room: ' + room + ' was created..', true);
     });
 
-    socket.on('full', function(room) {
-        console.log('Room ' + room + ' is full');
-    });
-
-    socket.on('join', function(room) {
+    socket.on('join', function(data) {
 
         callback('Joining room..', true);
         isChannelReady = true;
+        console.log('This peer has joined room ' + data.ClientId);
+        lastStreamId = data.ClientId;
     });
 
-    socket.on('joined', function(room) {
-        callback('Room: ' + room);
-        console.log('This peer has joined room ' + room);
+    socket.on('joined', function(data) {
+        callback('Room: ' + data.RoomName);
         isChannelReady = true;
     });
 
-    socket.on('log', function(array) {
-        console.log.apply(console, array);
+    socket.on('ClientDisconnect', function(clientId) {
+        console.log('Client disconnecting: ' + clientId);
+        $('#' + clientId).remove();
     });
 
 ////////////////////////////////////////////////
@@ -93,6 +94,9 @@ function beginVideo(roomName, callback) {
     function handleUserMedia(stream) {
         console.log('Adding local stream.');
         localVideo.src = window.URL.createObjectURL(stream);
+        localVideo.style.width = currentWidth;
+        localVideo.style.height = currentHeight;
+
         localStream = stream;
         sendMessage('got user media');
         if (isInitiator) {
@@ -213,6 +217,11 @@ function beginVideo(roomName, callback) {
         var remoteVideo = document.createElement("video");
         remoteVideo.autoplay = true;
         remoteVideo.src = window.URL.createObjectURL(event.stream);
+        remoteVideo.id = lastStreamId;
+        
+        remoteVideo.style.width = currentWidth;
+        remoteVideo.style.height = currentHeight;
+        
         remoteStreams.push(event.stream);
         $('#videos').append(remoteVideo);
         console.log('Creation complete!');

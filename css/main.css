@@ -6,6 +6,10 @@
         Purpose of the stylesheet follows.
 */
 
+body {
+  
+  height: 1054px;
+}
 root { 
     display: block;
 }
