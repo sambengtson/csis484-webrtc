@@ -30,12 +30,12 @@ io.sockets.on('connection', function(socket) {
             });
         } else {            
             socket.join(room);
+            io.sockets.in(room).emit('join', clientInfo);
             var clientInfo = new Object();
             clientInfo.RoomName = room;
             clientInfo.ClientId = Math.floor((Math.random() * 10000) + 1);
             socket.set('ClientInfo', clientInfo, function() {
-                socket.emit('joined', clientInfo);
-                io.sockets.in(room).emit('join', clientInfo);
+                io.sockets.in(room).emit('joined', clientInfo);                
             });
         }
     });

@@ -1,9 +1,8 @@
 
 
-    <div id='videos'>        
-        <video id='localVideo' style="overflow-x: hidden; overflow-y: hidden; margin-bottom: 10px;" autoplay muted></video>
-<!--        <video id='remoteVideo' autoplay></video>-->
-    </div>
+<div id='videos' class="jumbotron">      
+    <video id='localVideo' style="overflow-x: hidden; overflow-y: hidden; margin-top: 5px;" autoplay muted></video>
+</div>
 
 <script type="text/javascript">
 

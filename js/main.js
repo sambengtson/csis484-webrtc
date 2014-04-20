@@ -9,7 +9,7 @@ function beginVideo(roomName, callback) {
     var remoteStreams = new Array();
     var turnReady;
     var lastStreamId = 0;
-    var currentWidth = '100%';
+    var currentWidth = 540;
     var currentHeight = 320;
 
     var pc_config = {'iceServers': [{"url": "stun:stun.l.google.com:19302"},
