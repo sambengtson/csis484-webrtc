@@ -21,6 +21,7 @@ io.sockets.on('connection', function(socket) {
         console.log('Room ' + room + ' has ' + numClients + ' client(s)');
 
         if (numClients === 0) {
+            console.log('Creating room:' + room);
             socket.join(room);
             var clientInfo = new Object();
             clientInfo.RoomName = room;
@@ -28,14 +29,15 @@ io.sockets.on('connection', function(socket) {
             socket.set('ClientInfo', clientInfo, function() {
                 socket.emit('created', room);
             });
-        } else {            
-            socket.join(room);
-            io.sockets.in(room).emit('join', clientInfo);
+        } else {
+            console.log('Joining room');
+            socket.join(room);            
             var clientInfo = new Object();
             clientInfo.RoomName = room;
             clientInfo.ClientId = Math.floor((Math.random() * 10000) + 1);
+            io.sockets.in(room).emit('join', clientInfo);
             socket.set('ClientInfo', clientInfo, function() {
-                io.sockets.in(room).emit('joined', clientInfo);                
+                io.sockets.in(room).emit('joined', clientInfo);
             });
         }
     });

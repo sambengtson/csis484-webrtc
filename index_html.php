@@ -1,5 +1,5 @@
-<div class="jumbotron">
-    <div class="container">
+<div class="jumbotron" style="width: 100%">
+    <div class="container" style="width: 100%">
         <h1>Web-RTC Video Chat</h1>
         <p>We are providing free Web-RTC group video chat as part of an experimental project for a UWRF Senior Seminar project.</p>
         <p>Simply enter a unique room name and connect with anybody in the world!</p>

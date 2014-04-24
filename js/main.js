@@ -1,6 +1,11 @@
 function beginVideo(roomName, callback) {
     'use strict';
 
+    var clientInfo = getClientInfo();
+    if (clientInfo.Browser.indexOf("Chrome") === -1) {
+        alert('You are not using Chrome!  For best results, please download a Chrome based browser');
+    }
+
     var isChannelReady;
     var isInitiator = false;
     var isStarted = false;
@@ -24,7 +29,8 @@ function beginVideo(roomName, callback) {
 
 /////////////////////////////////////////////
 
-    var socket = io.connect('http://dev.t1innovations.com:2013');
+    //var socket = io.connect('http://dev.t1innovations.com:2013');
+    var socket = io.connect('http://192.168.1.5:2013');
 
     if (roomName !== '') {
         console.log('Create or join room', roomName);
@@ -46,7 +52,7 @@ function beginVideo(roomName, callback) {
     });
 
     socket.on('joined', function(data) {
-        callback('Room: ' + data.RoomName);
+        //callback('Room: ' + data.RoomName);
         isChannelReady = true;
     });
 
@@ -55,17 +61,9 @@ function beginVideo(roomName, callback) {
         $('#' + clientId).remove();
     });
 
-////////////////////////////////////////////////
-
-    function sendMessage(message) {
-        // if (typeof message === 'object') {
-        //   message = JSON.stringify(message);
-        // }
-        socket.emit('message', message);
-    }
 
     socket.on('message', function(message) {
-        if (message === 'got user media') {
+        if (message === 'GotMedia') {
             maybeStart();
         } else if (message.type === 'offer') {
             if (!isInitiator && !isStarted) {
@@ -91,14 +89,60 @@ function beginVideo(roomName, callback) {
     var localVideo = document.querySelector('#localVideo');
     //var remoteVideo = document.querySelector('#remoteVideo');
 
+    function getClientInfo()
+    {
+        var info = new Object();
+        var nAgt = navigator.userAgent;
+        var verOffset, nameOffset;
+        info.OS = "Unknown";
+
+        if (navigator.appVersion.indexOf("Win") !== -1)
+            info.OS = "Windows";
+        if (navigator.appVersion.indexOf("Mac") !== -1)
+            info.OS = "MacOS";
+        if (navigator.appVersion.indexOf("X11") !== -1)
+            info.OS = "UNIX";
+        if (navigator.appVersion.indexOf("Linux") !== -1)
+            info.OS = "Linux";
+
+        if ((verOffset = nAgt.indexOf("Opera")) !== -1) {
+            info.Browser = "Opera";
+        }
+        else if ((verOffset = nAgt.indexOf("MSIE")) !== -1) {
+            info.Browser = "Microsoft Internet Explorer";
+        }
+        else if ((verOffset = nAgt.indexOf("Chrome")) !== -1) {
+            info.Browser = "Chrome";
+        }
+        else if ((verOffset = nAgt.indexOf("Safari")) !== -1) {
+            info.Browser = "Safari";
+        }
+        else if ((verOffset = nAgt.indexOf("Firefox")) !== -1) {
+            info.Browser = "Firefox";
+        }
+        else if ((nameOffset = nAgt.lastIndexOf(' ') + 1) < (verOffset = nAgt.lastIndexOf('/'))) {
+            info.Browser = nAgt.substring(nameOffset, verOffset);
+        }
+
+        return info;
+    }
+
+    function sendMessage(message) {
+        socket.emit('message', message);
+    }
+
     function handleUserMedia(stream) {
         console.log('Adding local stream.');
         localVideo.src = window.URL.createObjectURL(stream);
-        localVideo.style.width = currentWidth;
-        localVideo.style.height = currentHeight;
+        localVideo.style.width = "200px";
+        localVideo.style.height = "200px";
+
+        sendMessage("GotMedia");
 
         localStream = stream;
-        sendMessage('got user media');
+        $('#browserInfoLabel').text(clientInfo.Browser);
+        $('#osLabel').text(clientInfo.OS);
+
         if (isInitiator) {
             maybeStart();
         }
@@ -111,7 +155,8 @@ function beginVideo(roomName, callback) {
         console.log('getUserMedia error: ', error);
     }
 
-    var constraints = {video: true, audio: true};
+    var constraints = {video: true, audio: false};
+    //var constraints = {video: true, audio: true};
     getUserMedia(constraints, handleUserMedia, handleUserMediaError);
 
     console.log('Getting user media with constraints', constraints);
@@ -127,7 +172,7 @@ function beginVideo(roomName, callback) {
     }
 
     function maybeStart() {
-        if (typeof localStream != 'undefined' && isChannelReady) {
+        if (typeof localStream !== 'undefined' && isChannelReady) {
             createPeerConnection();
             pc.addStream(localStream);
             isStarted = true;
@@ -151,7 +196,6 @@ function beginVideo(roomName, callback) {
 
                 console.log('turn server ready');
                 pc = new RTCPeerConnection(pc_config);
-                //pc = new RTCPeerConnection({ iceServers: data }, {});
                 pc.onicecandidate = handleIceCandidate;
                 pc.onaddstream = handleRemoteStreamAdded;
                 pc.onremovestream = handleRemoteStreamRemoved;
@@ -209,20 +253,19 @@ function beginVideo(roomName, callback) {
             }
         }
     }
-
     function handleRemoteStreamAdded(event) {
         console.log('Remote stream added.');
-//        remoteVideo.src = window.URL.createObjectURL(event.stream);
         console.log('Dynamically creating video');
         var remoteVideo = document.createElement("video");
         remoteVideo.autoplay = true;
         remoteVideo.src = window.URL.createObjectURL(event.stream);
         remoteVideo.id = lastStreamId;
-        
+
         remoteVideo.style.width = currentWidth;
         remoteVideo.style.height = currentHeight;
-        
-        remoteStreams.push(event.stream);
+
+        remoteStreams.push(event.stream);        
+        $('#videos').show();
         $('#videos').append(remoteVideo);
         console.log('Creation complete!');
     }
