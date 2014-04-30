@@ -29,8 +29,8 @@ function beginVideo(roomName, callback) {
 
 /////////////////////////////////////////////
 
-    //var socket = io.connect('http://dev.t1innovations.com:2013');
-    var socket = io.connect('http://192.168.1.5:2013');
+    var socket = io.connect('http://sambengtson.com:2013');
+    //var socket = io.connect('http://192.168.1.5:2013');
 
     if (roomName !== '') {
         console.log('Create or join room', roomName);
